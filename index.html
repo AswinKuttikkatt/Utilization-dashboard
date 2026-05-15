@@ -18,14 +18,13 @@
   .wrap{max-width:1380px;margin:0 auto;padding:24px}
   .row{display:grid;gap:16px}
   .row.cols-4{grid-template-columns:repeat(4,1fr)}
-  .row.cols-3{grid-template-columns:repeat(3,1fr)}
   .row.cols-2{grid-template-columns:repeat(2,1fr)}
-  @media(max-width:980px){.row.cols-4{grid-template-columns:repeat(2,1fr)}.row.cols-3,.row.cols-2{grid-template-columns:1fr}}
+  @media(max-width:980px){.row.cols-4{grid-template-columns:repeat(2,1fr)}.row.cols-2{grid-template-columns:1fr}}
   .hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
   .hdr h1{font-size:22px;font-weight:700;margin:0 0 2px}
   .hdr .sub{color:var(--muted);font-size:13px}
   .ctrls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .picker{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 32px 9px 14px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E5EAF3' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 10px center;background-size:12px;min-width:160px}
+  .picker{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 32px 9px 14px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E5EAF3' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 10px center;background-size:12px;min-width:140px}
   .picker:focus{outline:none;border-color:#2D4F7B}
   .refresh-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:12px}
   .refresh-btn:hover{color:var(--text);border-color:#2A3A5C}
@@ -36,7 +35,6 @@
   .kpi .label{color:var(--muted);font-size:13px;font-weight:500;margin-bottom:10px}
   .kpi .val{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
   .kpi .delta{margin-top:8px;font-size:12px;color:var(--muted)}
-  .kpi .delta.up{color:var(--green)} .kpi .delta.down{color:var(--red)} .kpi .delta.flat{color:var(--muted)}
   .sec-h{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:600;margin:0 0 14px}
   .sec-h .right{float:right;text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted-2);font-size:12px}
   .fse-toolbar{display:flex;gap:8px;margin:0 0 12px}
@@ -76,13 +74,7 @@
       <div class="sub">Field service — Hexagon Metrology India</div>
     </div>
     <div class="ctrls">
-      <select class="picker" id="periodSel">
-        <option value="all">All time</option>
-        <option value="7d">Weekly (last 7 days)</option>
-        <option value="14d">Biweekly (last 14 days)</option>
-        <option value="30d">Monthly (last 30 days)</option>
-        <option value="6m">Last 6 months</option>
-      </select>
+      <select class="picker" id="monthSel"></select>
       <select class="picker" id="regionSel"><option value="all">All regions</option></select>
       <button class="refresh-btn" id="refreshBtn" title="Hard refresh from Zoho">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -102,7 +94,9 @@
 
   <div class="row cols-2" style="margin-bottom:16px">
     <div class="card">
-      <div class="sec-h">FSE Utilization <span class="right"><span id="fseCount">—</span> shown</span></div>
+      <div class="sec-h">FSE Utilization
+        <span class="right"><span id="fseCount">—</span> shown</span>
+      </div>
       <div class="fse-toolbar">
         <input class="search" id="fseSearch" placeholder="Search by name, region, or %..." />
         <select class="band-filter" id="bandFilter">
@@ -120,17 +114,13 @@
     </div>
   </div>
 
-  <div class="row cols-3">
+  <div class="row cols-2">
     <div class="card">
       <div class="sec-h">Utilization by region</div>
       <div class="chart-wrap short"><canvas id="regionChart"></canvas></div>
     </div>
     <div class="card">
-      <div class="sec-h">Travel vs on-site hours</div>
-      <div class="chart-wrap short"><canvas id="travelChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="sec-h">Job type breakdown</div>
+      <div class="sec-h">Job type breakdown — count</div>
       <div class="chart-wrap short"><canvas id="jobTypeChart"></canvas></div>
     </div>
   </div>
@@ -148,23 +138,40 @@
 
   let RAW = null;
   let CHARTS = {};
-  let FILTER = { region: "all", period: "all" };
+  let FILTER = { region: "all", month: "all" };
 
   function setError(msg){ const b=document.getElementById("errBanner"); b.textContent=msg; b.classList.add("show"); }
   function clearError(){ document.getElementById("errBanner").classList.remove("show"); }
   function setBadge(id, s){ const el=document.getElementById(id); if(el) el.textContent = s; }
 
-  async function loadData(force){
+  async function loadData(){
     const params = [];
-    if(FILTER.period && FILTER.period !== "all") params.push("period=" + encodeURIComponent(FILTER.period));
-    if(force) params.push("force=1");
+    if(FILTER.month && FILTER.month !== "all") params.push("month=" + encodeURIComponent(FILTER.month));
     const url = API_URL + (params.length ? "?" + params.join("&") : "");
     try {
       const res = await fetch(url, { cache: "no-store" });
       if(!res.ok) throw new Error("HTTP " + res.status);
       const payload = await res.json();
-      setBadge("cacheBadge", "cache: " + (res.headers.get("X-Cache") || "live").toLowerCase());
-      setBadge("filterBadge", "filter: " + (payload.filter?.period || "all"));
+      setBadge("cacheBadge", "cache: server " + (res.headers.get("X-Cache") || "live").toLowerCase());
+      setBadge("filterBadge", "filter: " + (payload.filter?.month || "all"));
+      clearError();
+      return payload;
+    } catch(err) {
+      setError("API error: " + err.message);
+      return null;
+    }
+  }
+
+  async function loadHard(){
+    const params = ["force=1"];
+    if(FILTER.month && FILTER.month !== "all") params.push("month=" + encodeURIComponent(FILTER.month));
+    const url = API_URL + "?" + params.join("&");
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if(!res.ok) throw new Error("HTTP " + res.status);
+      const payload = await res.json();
+      setBadge("cacheBadge", "cache: refreshed");
+      setBadge("filterBadge", "filter: " + (payload.filter?.month || "all"));
       clearError();
       return payload;
     } catch(err) {
@@ -207,30 +214,12 @@
     };
   }
 
-  function renderKpis(k, deltas){
+  function renderKpis(k){
     const fmt = n => Number(n).toLocaleString("en-IN");
     document.getElementById("kpi-util").textContent  = (k.overall_util||0).toFixed(0)+"%";
     document.getElementById("kpi-hours").textContent = fmt(Math.round(k.total_job_hours||0));
     document.getElementById("kpi-eng").textContent   = (k.active_engineers||0);
     document.getElementById("kpi-jobs").textContent  = (k.avg_jobs_per_fse||0);
-    function setDelta(elId, v, suffix){
-      const el = document.getElementById(elId);
-      if(v === null || v === undefined || isNaN(v)){ el.innerHTML = "&nbsp;"; el.className="delta flat"; return; }
-      const r = Math.round(v*100)/100;
-      const arrow = r > 0 ? "▲" : (r < 0 ? "▼" : "•");
-      const sign  = r > 0 ? "+" : "";
-      const cls   = r === 0 ? "flat" : (r > 0 ? "up" : "down");
-      el.className = "delta " + cls;
-      el.textContent = arrow + " " + sign + r + (suffix||"") + " vs previous period";
-    }
-    if(deltas){
-      setDelta("kpi-util-d",  deltas.overall_util, "%");
-      setDelta("kpi-hours-d", deltas.total_job_hours, " hrs");
-      setDelta("kpi-eng-d",   deltas.active_engineers, "");
-      setDelta("kpi-jobs-d",  deltas.avg_jobs_per_fse, "");
-    } else {
-      ["kpi-util-d","kpi-hours-d","kpi-eng-d","kpi-jobs-d"].forEach(id => { document.getElementById(id).innerHTML="&nbsp;"; });
-    }
   }
 
   function renderFseList(engineers){
@@ -296,7 +285,7 @@
 
   function renderRegion(r, highlight){
     if(CHARTS.region) CHARTS.region.destroy();
-    const colors=["#3B82F6","#22C55E","#F59E0B","#8B5CF6","#14B8A6","#EC4899"];
+    const colors=["#3B82F6","#22C55E","#F59E0B","#8B5CF6","#14B8A6"];
     const colorFn = (label,i) => (highlight==="all" || highlight===label) ? colors[i%colors.length] : "rgba(150,150,150,.25)";
     CHARTS.region = new Chart(document.getElementById("regionChart"), {
       type:"bar",
@@ -307,18 +296,6 @@
     });
   }
 
-  function renderTravelOnsite(d){
-    if(CHARTS.travel) CHARTS.travel.destroy();
-    CHARTS.travel = new Chart(document.getElementById("travelChart"), {
-      type:"doughnut",
-      data:{labels:d.map(x=>x.label),datasets:[{ data:d.map(x=>x.value), backgroundColor:d.map(x=>x.color), borderColor:"#0B1220", borderWidth:3, hoverOffset:6 }]},
-      options:{maintainAspectRatio:false,cutout:"66%",plugins:{
-        legend:{position:"bottom",labels:{color:"#E5EAF3",boxWidth:10,boxHeight:10,padding:14,font:{size:12}}},
-        tooltip:{callbacks:{label:(c)=>{ const tot=c.dataset.data.reduce((a,b)=>a+b,0); return `${c.label}: ${Math.round(c.parsed).toLocaleString()} hrs (${(c.parsed*100/tot).toFixed(1)}%)`; }}}
-      }}
-    });
-  }
-
   function renderJobType(j){
     if(CHARTS.jobtype) CHARTS.jobtype.destroy();
     if(!j || !j.length){ document.getElementById("jobTypeChart").parentElement.innerHTML = '<div class="empty">No job type data.</div>'; return; }
@@ -326,10 +303,24 @@
       type:"doughnut",
       data:{labels:j.map(x=>x.label),datasets:[{ data:j.map(x=>x.value), backgroundColor:j.map(x=>x.color||"#3B82F6"), borderColor:"#0B1220", borderWidth:3, hoverOffset:6 }]},
       options:{maintainAspectRatio:false,cutout:"66%",plugins:{
-        legend:{position:"bottom",labels:{color:"#E5EAF3",boxWidth:10,boxHeight:10,padding:14,font:{size:12}}},
+        legend:{position:"right",labels:{color:"#E5EAF3",boxWidth:10,boxHeight:10,padding:14,font:{size:12}}},
         tooltip:{callbacks:{label:(c)=>{ const tot=c.dataset.data.reduce((a,b)=>a+b,0); return `${c.label}: ${c.parsed} jobs (${(c.parsed*100/tot).toFixed(1)}%)`; }}}
       }}
     });
+  }
+
+  function populateMonthOptions(){
+    const monthSel = document.getElementById("monthSel");
+    const now = new Date();
+    const opts = ['<option value="all">All time</option>'];
+    for(let i = 0; i < 6; i++){
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+      const label = d.toLocaleString("en-IN", {month:"long", year:"numeric"});
+      opts.push(`<option value="${key}">${label}</option>`);
+    }
+    monthSel.innerHTML = opts.join("");
+    monthSel.value = FILTER.month;
   }
 
   function populateRegionOptions(){
@@ -346,8 +337,7 @@
   function applyClientFilters(){
     const engs = filteredEngineers();
     const kpis = recomputeKpis(engs);
-    const showDeltas = (FILTER.region === "all");
-    renderKpis(kpis, showDeltas ? RAW.deltas : null);
+    renderKpis(kpis);
     renderFseList(engs);
     renderRegion(RAW.region, FILTER.region);
   }
@@ -355,7 +345,6 @@
   function renderAll(){
     populateRegionOptions();
     renderTrend(RAW.trend);
-    renderTravelOnsite(RAW.travel_vs_onsite || []);
     renderJobType(RAW.jobtype);
     applyClientFilters();
     document.getElementById("genAt").textContent = RAW.generatedAt
@@ -368,32 +357,37 @@
   Chart.defaults.font.size=11;
 
   const refreshBtn=document.getElementById("refreshBtn");
-  const periodSel = document.getElementById("periodSel");
+  const monthSel = document.getElementById("monthSel");
   const regionSel = document.getElementById("regionSel");
 
-  periodSel.addEventListener("change", async (e) => {
-    FILTER.period = e.target.value;
+  // Month change → server-side refetch
+  monthSel.addEventListener("change", async (e) => {
+    FILTER.month = e.target.value;
     refreshBtn.classList.add("spinning");
-    RAW = await loadData(false);
+    RAW = await loadData();
     if(RAW) renderAll();
     refreshBtn.classList.remove("spinning");
   });
 
+  // Region change → client-side refilter (no API hit)
   regionSel.addEventListener("change", (e) => {
     FILTER.region = e.target.value;
     if(RAW) applyClientFilters();
   });
 
+  // Hard refresh → force=1, clears server cache
   refreshBtn.addEventListener("click", async () => {
     refreshBtn.classList.add("spinning");
-    RAW = await loadData(true);
+    RAW = await loadHard();
     if(RAW) renderAll();
     refreshBtn.classList.remove("spinning");
   });
 
+  // Boot
+  populateMonthOptions();
   (async () => {
     refreshBtn.classList.add("spinning");
-    RAW = await loadData(false);
+    RAW = await loadData();
     if(RAW) renderAll();
     refreshBtn.classList.remove("spinning");
   })();
