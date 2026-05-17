@@ -310,7 +310,7 @@
   const API_URL = window.DASHBOARD_API_URL ||
     "https://utilization-dashboard-60071326929.development.catalystserverless.in/server/utilization_dashboard_function/";
 
-  const CACHE_KEY = "utilDashCache_v3";
+  const CACHE_KEY = "utilDashCache_v4";
   const FILTER_KEY = "utilDashFilters_v2";
   const CACHE_TTL_MS = 10 * 60 * 1000;
 
@@ -538,9 +538,19 @@
     const _order = orderRegions(regionArr.map(r=>r.label));
     regionArr.sort((a,b)=> _order.indexOf(a.label) - _order.indexOf(b.label));
 
-    const jobtypeArr = Array.from(byJobType.entries())
-      .map(([label,value])=> ({label, value, color: JOBTYPE_COLOR[label] || "#8B5CF6"}))
-      .sort((a,b)=> b.value - a.value);
+    // Job type breakdown — daily rows don't carry Service Type, so pass the
+    // server-side aggregate (RAW.jobtype) straight through. It's already
+    // period-filtered server-side via the ?period= param.
+    const palette = ["#3B82F6","#14B8A6","#22C55E","#F59E0B","#EF4444","#8B5CF6","#EC4899","#06B6D4"];
+    const jobtypeArr = Array.isArray(RAW && RAW.jobtype) && RAW.jobtype.length
+      ? RAW.jobtype.map((x,i) => ({
+          label: x.label || "Unknown",
+          value: Number(x.value) || 0,
+          color: x.color || JOBTYPE_COLOR[x.label] || palette[i % palette.length]
+        }))
+      : Array.from(byJobType.entries())
+          .map(([label,value])=> ({label, value, color: JOBTYPE_COLOR[label] || "#8B5CF6"}))
+          .sort((a,b)=> b.value - a.value);
 
     const wfhTotal = wfh + wos;
     const wfhPct = wfhTotal ? Math.round(wfh*1000/wfhTotal)/10 : 0;
