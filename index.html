@@ -9,36 +9,76 @@
     --bg:#0B1220; --panel:#111A2E; --panel-2:#16213C; --border:#1F2A44;
     --text:#E5EAF3; --muted:#8895AD; --muted-2:#5C6A85;
     --green:#22C55E; --red:#EF4444; --amber:#F59E0B;
+    --blue:#3B82F6; --teal:#14B8A6; --violet:#8B5CF6; --pink:#EC4899;
     --high-bg:rgba(34,197,94,.15); --high-fg:#34D399;
     --med-bg:rgba(245,158,11,.18);  --med-fg:#FBBF24;
     --low-bg:rgba(239,68,68,.18);   --low-fg:#F87171;
+    --chip-bg:#16213C; --chip-active:#1E3A8A;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1380px;margin:0 auto;padding:24px}
   .row{display:grid;gap:16px}
+  .row.cols-5{grid-template-columns:repeat(5,1fr)}
   .row.cols-4{grid-template-columns:repeat(4,1fr)}
   .row.cols-3{grid-template-columns:repeat(3,1fr)}
   .row.cols-2{grid-template-columns:repeat(2,1fr)}
-  @media(max-width:980px){.row.cols-4{grid-template-columns:repeat(2,1fr)}.row.cols-3,.row.cols-2{grid-template-columns:1fr}}
-  .hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
-  .hdr h1{font-size:22px;font-weight:700;margin:0 0 2px}
+  .row.split-2-1{grid-template-columns:2fr 1fr}
+  @media(max-width:1100px){.row.cols-5{grid-template-columns:repeat(3,1fr)}.row.cols-4{grid-template-columns:repeat(2,1fr)}.row.cols-3{grid-template-columns:repeat(2,1fr)}.row.cols-2{grid-template-columns:1fr}.row.split-2-1{grid-template-columns:1fr}}
+  @media(max-width:640px){.row.cols-5,.row.cols-4,.row.cols-3{grid-template-columns:1fr}}
+
+  .hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+  .hdr h1{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:0 0 2px}
   .hdr .sub{color:var(--muted);font-size:13px}
   .ctrls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  .picker{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 32px 9px 14px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E5EAF3' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 10px center;background-size:12px;min-width:160px}
-  .picker:focus{outline:none;border-color:#2D4F7B}
+  .picker, .multi-picker-btn{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+  .picker:hover, .multi-picker-btn:hover{border-color:#2A3A5C}
+  .picker svg, .multi-picker-btn svg{width:14px;height:14px;opacity:.7}
   .refresh-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:12px}
   .refresh-btn:hover{color:var(--text);border-color:#2A3A5C}
   .refresh-btn svg{width:13px;height:13px}
   .refresh-btn.spinning svg{animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
-  .kpi .label{color:var(--muted);font-size:13px;font-weight:500;margin-bottom:10px}
-  .kpi .val{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
-  .kpi .delta{margin-top:8px;font-size:12px;color:var(--muted)}
-  .kpi .delta.up{color:var(--green)} .kpi .delta.down{color:var(--red)} .kpi .delta.flat{color:var(--muted)}
-  .sec-h{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:600;margin:0 0 14px}
-  .sec-h .right{float:right;text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted-2);font-size:12px}
+
+  /* Filter bar */
+  .filter-bar{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+  .filter-group{display:flex;gap:8px;align-items:center}
+  .filter-group label{color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em}
+  .date-input{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:8px;font-size:13px;outline:none;color-scheme:dark;font-family:inherit}
+  .date-input:focus{border-color:#2D4F7B}
+  .preset-chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{background:var(--chip-bg);border:1px solid var(--border);color:var(--muted);padding:6px 11px;border-radius:999px;font-size:12px;font-weight:500;cursor:pointer;transition:all .12s}
+  .chip:hover{color:var(--text);border-color:#2D4F7B}
+  .chip.active{background:var(--chip-active);border-color:#3B82F6;color:#fff}
+  .range-badge{margin-left:auto;color:var(--muted);font-size:12px;display:flex;gap:8px;align-items:center}
+  .range-badge b{color:var(--text);font-weight:600}
+  .csv-btn{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+  .csv-btn:hover{border-color:#2D4F7B}
+  .csv-btn svg{width:13px;height:13px;opacity:.8}
+
+  /* Region multi-select dropdown */
+  .multi-picker{position:relative}
+  .multi-picker .menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:8px;min-width:200px;display:none;z-index:50;box-shadow:0 14px 30px rgba(0,0,0,.4)}
+  .multi-picker.open .menu{display:block}
+  .multi-picker .menu label{display:flex;gap:10px;align-items:center;padding:6px 8px;font-size:13px;cursor:pointer;border-radius:6px}
+  .multi-picker .menu label:hover{background:rgba(255,255,255,.04)}
+  .multi-picker .menu input[type="checkbox"]{accent-color:#3B82F6}
+  .multi-picker .menu .menu-actions{display:flex;gap:6px;padding:6px 4px 2px;border-top:1px solid var(--border);margin-top:4px}
+  .multi-picker .menu .menu-actions button{flex:1;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;padding:5px;border-radius:6px;cursor:pointer}
+  .multi-picker .menu .menu-actions button:hover{color:var(--text);border-color:#2D4F7B}
+
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative}
+  .kpi .label{color:var(--muted);font-size:13px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .kpi .label .info{color:var(--muted-2);cursor:help;font-size:11px;width:14px;height:14px;border-radius:50%;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center}
+  .kpi .val{font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+  .kpi .delta{margin-top:8px;font-size:12px;font-weight:500;color:var(--muted)}
+  .kpi .delta.up{color:var(--high-fg)}
+  .kpi .delta.down{color:var(--low-fg)}
+
+  .sec-h{font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;font-weight:600;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .sec-h .right{text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted-2);font-size:12px;display:flex;gap:8px;align-items:center}
+  .sort-select{background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer}
+
   .fse-toolbar{display:flex;gap:8px;margin:0 0 12px}
   .search{flex:1;background:var(--panel-2);border:1px solid var(--border);color:var(--text);padding:8px 12px 8px 32px;border-radius:9px;font-size:13px;outline:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238895AD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");background-repeat:no-repeat;background-position:10px center;background-size:14px}
   .search:focus{border-color:#2D4F7B}
@@ -46,25 +86,51 @@
   .fse-list{display:flex;flex-direction:column;gap:8px;max-height:430px;overflow-y:auto;padding-right:4px}
   .fse-list::-webkit-scrollbar{width:6px}
   .fse-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-  .fse-row{display:grid;grid-template-columns:34px 1fr 70px 1fr 50px 70px;align-items:center;gap:12px;padding:8px 6px;border-radius:8px}
-  .fse-row:hover{background:rgba(255,255,255,.02)}
-  .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex:none}
+  .fse-row{display:grid;grid-template-columns:34px 1fr 70px 1fr 50px 70px;align-items:center;gap:12px;padding:8px 6px;border-radius:8px;cursor:pointer}
+  .fse-row:hover{background:rgba(255,255,255,.03)}
+  .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;letter-spacing:.5px;flex:none}
   .name{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .region{color:var(--muted);font-size:12px}
-  .bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+  .bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;position:relative}
   .bar > i{display:block;height:100%;border-radius:3px}
   .pct{font-weight:700;font-size:13px;text-align:right}
-  .pill{display:inline-flex;justify-content:center;align-items:center;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px}
+  .pill{display:inline-flex;justify-content:center;align-items:center;font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
   .pill.high{background:var(--high-bg);color:var(--high-fg)}
   .pill.med{background:var(--med-bg);color:var(--med-fg)}
   .pill.low{background:var(--low-bg);color:var(--low-fg)}
   .empty{color:var(--muted);text-align:center;padding:24px;font-size:13px}
+
   .chart-wrap{position:relative;height:280px}
   .chart-wrap.short{height:240px}
+  .chart-wrap.tall{height:320px}
+
+  /* Donut center label */
+  .donut-card{position:relative}
+  .donut-center{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+  .donut-center .big{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .donut-center .lbl{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+
+  /* Engineer drawer */
+  .drawer-overlay{position:fixed;inset:0;background:rgba(7,12,24,.6);display:none;z-index:100;backdrop-filter:blur(2px)}
+  .drawer-overlay.show{display:block}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,90vw);background:var(--panel);border-left:1px solid var(--border);padding:24px;overflow-y:auto;transform:translateX(100%);transition:transform .25s ease;z-index:101}
+  .drawer-overlay.show .drawer{transform:translateX(0)}
+  .drawer h3{margin:0 0 6px;font-size:18px}
+  .drawer .close{position:absolute;top:18px;right:18px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:22px}
+  .drawer .close:hover{color:var(--text)}
+  .drawer .meta{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .drawer .stat-row{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--border)}
+  .drawer .stat-row .k{color:var(--muted);font-size:12px}
+  .drawer .stat-row .v{font-weight:600;font-size:14px}
+
   .src{color:var(--muted-2);font-size:11px;margin-top:16px;text-align:center;display:flex;justify-content:center;gap:10px;align-items:center;flex-wrap:wrap}
-  .badge-cache{background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:2px 8px;border-radius:999px;font-size:10px}
+  .badge-cache,.badge-mock{background:var(--panel-2);border:1px solid var(--border);color:var(--muted);padding:2px 8px;border-radius:999px;font-size:10px}
+  .badge-mock{color:var(--med-fg);border-color:rgba(245,158,11,.4)}
   .err-banner{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#FCA5A5;padding:10px 14px;border-radius:10px;margin-bottom:16px;font-size:13px;display:none}
   .err-banner.show{display:block}
+  .info-banner{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);color:#93C5FD;padding:8px 12px;border-radius:8px;margin-bottom:14px;font-size:12px}
+  .skel{background:linear-gradient(90deg,#16213C 25%,#1F2A44 50%,#16213C 75%);background-size:200% 100%;animation:skel 1.4s linear infinite;border-radius:6px;color:transparent}
+  @keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
 </style>
 </head>
 <body>
@@ -76,15 +142,13 @@
       <div class="sub">Field service — Hexagon Metrology India</div>
     </div>
     <div class="ctrls">
-      <select class="picker" id="periodSel">
-        <option value="all">All time</option>
-        <option value="7d">Weekly (last 7 days)</option>
-        <option value="14d">Biweekly (last 14 days)</option>
-        <option value="30d">Monthly (last 30 days)</option>
-        <option value="6m">Last 6 months</option>
-      </select>
-      <select class="picker" id="regionSel"><option value="all">All regions</option></select>
-      <button class="refresh-btn" id="refreshBtn" title="Hard refresh from Zoho">
+      <div class="multi-picker" id="regionPicker">
+        <button class="multi-picker-btn" id="regionBtn">All regions
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="menu" id="regionMenu"></div>
+      </div>
+      <button class="refresh-btn" id="refreshBtn" title="Refresh data">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         Refresh
       </button>
@@ -93,16 +157,78 @@
 
   <div class="err-banner" id="errBanner"></div>
 
-  <div class="row cols-4" style="margin-bottom:16px">
-    <div class="card kpi"><div class="label">Overall utilization</div><div class="val" id="kpi-util">—</div><div class="delta" id="kpi-util-d">&nbsp;</div></div>
-    <div class="card kpi"><div class="label">Total job hours</div><div class="val" id="kpi-hours">—</div><div class="delta" id="kpi-hours-d">&nbsp;</div></div>
-    <div class="card kpi"><div class="label">Active engineers</div><div class="val" id="kpi-eng">—</div><div class="delta" id="kpi-eng-d">&nbsp;</div></div>
-    <div class="card kpi"><div class="label">Avg jobs per FSE</div><div class="val" id="kpi-jobs">—</div><div class="delta" id="kpi-jobs-d">&nbsp;</div></div>
+  <!-- Date filter bar -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label for="startDate">From</label>
+      <input type="date" class="date-input" id="startDate" />
+    </div>
+    <div class="filter-group">
+      <label for="endDate">To</label>
+      <input type="date" class="date-input" id="endDate" />
+    </div>
+    <div class="preset-chips" id="presetChips">
+      <button class="chip" data-preset="7">7D</button>
+      <button class="chip" data-preset="14">14D</button>
+      <button class="chip" data-preset="30">30D</button>
+      <button class="chip" data-preset="mtd">MTD</button>
+      <button class="chip" data-preset="qtd">QTD</button>
+      <button class="chip" data-preset="6m">6M</button>
+      <button class="chip" data-preset="ytd">YTD</button>
+      <button class="chip" data-preset="all">All</button>
+    </div>
+    <div class="range-badge" id="rangeBadge">
+      <span>Showing</span><b id="rangeText">—</b><span>·</span><span id="rangeDays">—</span>
+    </div>
+    <button class="csv-btn" id="csvBtn" title="Export the current FSE list view to CSV">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export CSV
+    </button>
   </div>
 
+  <!-- KPI row (5 cards) -->
+  <div class="row cols-5" style="margin-bottom:16px">
+    <div class="card kpi">
+      <div class="label">Overall utilization <span class="info" title="Average Util_Capacity_Pct across all engineers within the selected date range and regions.">i</span></div>
+      <div class="val" id="kpi-util"><span class="skel">———</span></div>
+      <div class="delta" id="kpi-util-d">&nbsp;</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Total job hours <span class="info" title="Sum of Total_Productive_Hours within the selected range.">i</span></div>
+      <div class="val" id="kpi-hours"><span class="skel">———</span></div>
+      <div class="delta" id="kpi-hours-d">&nbsp;</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Active engineers <span class="info" title="Distinct engineers with at least one activity record in the selected range.">i</span></div>
+      <div class="val" id="kpi-eng"><span class="skel">———</span></div>
+      <div class="delta" id="kpi-eng-d">&nbsp;</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Avg jobs per FSE <span class="info" title="Total jobs ÷ active engineers in range.">i</span></div>
+      <div class="val" id="kpi-jobs"><span class="skel">———</span></div>
+      <div class="delta" id="kpi-jobs-d">&nbsp;</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Avg hours / FSE <span class="info" title="Total productive hours ÷ active engineers. Useful for spotting workload imbalance.">i</span></div>
+      <div class="val" id="kpi-hpf"><span class="skel">———</span></div>
+      <div class="delta" id="kpi-hpf-d">&nbsp;</div>
+    </div>
+  </div>
+
+  <!-- FSE list + Trend -->
   <div class="row cols-2" style="margin-bottom:16px">
     <div class="card">
-      <div class="sec-h">FSE Utilization <span class="right"><span id="fseCount">—</span> shown</span></div>
+      <div class="sec-h">FSE utilization — selected range
+        <span class="right">
+          <select class="sort-select" id="sortBy">
+            <option value="util-desc">Util ↓</option>
+            <option value="util-asc">Util ↑</option>
+            <option value="jobs-desc">Jobs ↓</option>
+            <option value="name-asc">Name A–Z</option>
+          </select>
+          <span><span id="fseCount">—</span> shown</span>
+        </span>
+      </div>
       <div class="fse-toolbar">
         <input class="search" id="fseSearch" placeholder="Search by name, region, or %..." />
         <select class="band-filter" id="bandFilter">
@@ -115,23 +241,42 @@
       <div class="fse-list" id="fseList"></div>
     </div>
     <div class="card">
-      <div class="sec-h">Monthly trend — team utilization %</div>
+      <div class="sec-h">Daily trend — team utilization %
+        <span class="right" id="trendNote"></span>
+      </div>
       <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
     </div>
   </div>
 
-  <div class="row cols-3">
+  <!-- Region + Job Type -->
+  <div class="row cols-2" style="margin-bottom:16px">
     <div class="card">
       <div class="sec-h">Utilization by region</div>
       <div class="chart-wrap short"><canvas id="regionChart"></canvas></div>
     </div>
     <div class="card">
+      <div class="sec-h">Job type breakdown — count</div>
+      <div class="chart-wrap short"><canvas id="jobTypeChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Travel vs On-site + WFH vs WOS -->
+  <div class="row cols-2">
+    <div class="card donut-card">
       <div class="sec-h">Travel vs on-site hours</div>
       <div class="chart-wrap short"><canvas id="travelChart"></canvas></div>
+      <div class="donut-center">
+        <div class="big" id="travelPct">—</div>
+        <div class="lbl">On-site share</div>
+      </div>
     </div>
-    <div class="card">
-      <div class="sec-h">Job type breakdown</div>
-      <div class="chart-wrap short"><canvas id="jobTypeChart"></canvas></div>
+    <div class="card donut-card">
+      <div class="sec-h">Work location — WFH vs WOS</div>
+      <div class="chart-wrap short"><canvas id="wfhChart"></canvas></div>
+      <div class="donut-center">
+        <div class="big" id="wfhPct">—</div>
+        <div class="lbl">WFH share</div>
+      </div>
     </div>
   </div>
 
@@ -140,86 +285,329 @@
     · <span id="genAt">loading…</span>
     · <span class="badge-cache" id="cacheBadge">cache: —</span>
     · <span class="badge-cache" id="filterBadge">filter: —</span>
+    · <span class="badge-mock" id="mockBadge" style="display:none">WFH/WOS: mocked</span>
+  </div>
+</div>
+
+<!-- Engineer drill-down drawer -->
+<div class="drawer-overlay" id="drawerOverlay">
+  <div class="drawer" onclick="event.stopPropagation()">
+    <button class="close" id="drawerClose">×</button>
+    <h3 id="drawerName">—</h3>
+    <div class="meta" id="drawerMeta">—</div>
+    <div class="stat-row"><span class="k">Utilization %</span><span class="v" id="drawerUtil">—</span></div>
+    <div class="stat-row"><span class="k">Band</span><span class="v" id="drawerBand">—</span></div>
+    <div class="stat-row"><span class="k">Jobs in range</span><span class="v" id="drawerJobs">—</span></div>
+    <div class="stat-row"><span class="k">Region</span><span class="v" id="drawerRegion">—</span></div>
+    <div class="stat-row"><span class="k">Rank in team</span><span class="v" id="drawerRank">—</span></div>
   </div>
 </div>
 
 <script>
-  const API_URL = "https://utilization-dashboard-60071326929.development.catalystserverless.in/server/utilization_dashboard_function/";
+  // ============================================================
+  // 1)  CONFIG
+  // ============================================================
+  const API_URL = window.DASHBOARD_API_URL ||
+    "https://utilization-dashboard-60071326929.development.catalystserverless.in/server/utilization_dashboard_function/";
 
-  let RAW = null;
-  let CHARTS = {};
-  let FILTER = { region: "all", period: "all" };
+  const CACHE_KEY = "utilDashCache_v3";
+  const FILTER_KEY = "utilDashFilters_v2";
+  const CACHE_TTL_MS = 10 * 60 * 1000;
 
-  function setError(msg){ const b=document.getElementById("errBanner"); b.textContent=msg; b.classList.add("show"); }
-  function clearError(){ document.getElementById("errBanner").classList.remove("show"); }
-  function setBadge(id, s){ const el=document.getElementById(id); if(el) el.textContent = s; }
+  // Hexagon Metrology India region taxonomy — used to enforce display order
+  // in the multi-select dropdown and in the region bar chart. Any region
+  // returned by the backend that is NOT in this list is appended alphabetically.
+  const KNOWN_REGIONS = [
+    "Bangalore-South",
+    "Chennai-South",
+    "Coimbatore-South",
+    "HALLMARK",
+    "North",
+    "West"
+  ];
+  function orderRegions(list){
+    const known = KNOWN_REGIONS.filter(r => list.includes(r));
+    const extra = list.filter(r => !KNOWN_REGIONS.includes(r)).sort();
+    return [...known, ...extra];
+  }
 
-  async function loadData(force){
-    const params = [];
-    if(FILTER.period && FILTER.period !== "all") params.push("period=" + encodeURIComponent(FILTER.period));
-    if(force) params.push("force=1");
-    const url = API_URL + (params.length ? "?" + params.join("&") : "");
+  // ============================================================
+  // 2)  FALLBACK SAMPLE DATA
+  //     Includes a `daily` array so client-side date filtering works
+  //     end-to-end while the backend is still aggregated-only.
+  //     When the backend ships per-day rows it can populate `daily`
+  //     in the same shape and the dashboard will Just Work.
+  // ============================================================
+  function buildFallback(){
+    // Engineers used to spread daily activity over
+    const ENGS = [
+      {name:"Jithin G DEV",region:"Bangalore-South",base:200},
+      {name:"Ravi Kumar",region:"Bangalore-South",base:178},
+      {name:"Kirubaharan R",region:"Chennai-South",base:172},
+      {name:"Santosh Shelar",region:"West",base:170},
+      {name:"Akshaykumar Rayanuthala",region:"Chennai-South",base:158},
+      {name:"R Randheer",region:"Coimbatore-South",base:155},
+      {name:"Rathish Unni",region:"Coimbatore-South",base:165},
+      {name:"Mahesh More",region:"West",base:152},
+      {name:"Ravikant Saxena",region:"North",base:150},
+      {name:"Loganathan S",region:"Chennai-South",base:144},
+      {name:"Rajesh K",region:"North",base:148},
+      {name:"Suresh P",region:"HALLMARK",base:104},
+      {name:"Anil M",region:"North",base:96},
+      {name:"Vijay T",region:"Bangalore-South",base:90},
+      {name:"Nitin K",region:"West",base:86},
+      {name:"Pankaj S",region:"HALLMARK",base:48}
+    ];
+    // Build per-engineer per-day rows for ~75 days back from today
+    const today = new Date();
+    const daily = [];
+    for(let d=75; d>=0; d--){
+      const day = new Date(today); day.setDate(day.getDate()-d);
+      const iso = day.toISOString().slice(0,10);
+      // Weekend dampening
+      const dow = day.getDay();
+      const weekend = (dow===0 || dow===6) ? 0.35 : 1.0;
+      for(const e of ENGS){
+        // Deterministic-ish jitter so re-rendering is stable
+        const seed = (e.name.length*7 + d*13 + e.base) % 17;
+        const jitter = (seed - 8) * 1.2;            // ±10
+        const u = Math.max(0, (e.base + jitter) * weekend);
+        const hours = (u/100) * 8 * weekend;        // 8h capacity ≈ 100%
+        const jobs = (dow===0||dow===6) ? (Math.random()<.15?1:0) : (1 + (seed%2));
+        // WFH/WOS: ~30% WFH overall. Slight regional variation for realism.
+        const wfhProb = /South/i.test(e.region) ? 0.32
+                      : /West|Hallmark/i.test(e.region) ? 0.28
+                      : 0.34;
+        const wfh = Math.random() < wfhProb;
+        // Travel/on-site split: WFH = no travel; WOS = ~28% travel
+        const travel = wfh ? 0 : hours * 0.28;
+        const onsite = wfh ? hours : hours * 0.72;
+        daily.push({
+          date: iso,
+          engineer: e.name,
+          region: e.region,
+          util: Math.round(u*100)/100,
+          hours: Math.round(hours*100)/100,
+          travel_hours: Math.round(travel*100)/100,
+          onsite_hours: Math.round(onsite*100)/100,
+          jobs: jobs,
+          jobtype: pickJobType(seed, wfh),
+          work_location: wfh ? "WFH" : "WOS"
+        });
+      }
+    }
+    return { daily, generatedAt: new Date().toISOString() };
+  }
+  function pickJobType(seed, wfh){
+    if(wfh) return seed%3===0 ? "In-Office" : (seed%5===0 ? "Pre-Sales" : "In-Office");
+    return seed%4===0 ? "In-Warranty Service" : "Paid Service";
+  }
+
+  const FALLBACK = buildFallback();
+  const JOBTYPE_COLOR = {
+    "Paid Service":"#3B82F6",
+    "In-Warranty Service":"#14B8A6",
+    "In-Office":"#22C55E",
+    "Pre-Sales":"#F59E0B"
+  };
+
+  // ============================================================
+  // 3)  DATA FETCH WITH CACHE
+  // ============================================================
+  async function loadData(force) {
+    if (!force) {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw) {
+          const c = JSON.parse(raw);
+          if (Date.now() - c.t < CACHE_TTL_MS) {
+            setCacheBadge("client " + agoStr(c.t));
+            return c.payload;
+          }
+        }
+      } catch(_){}
+    }
+
+    if (API_URL.startsWith("REPLACE_")) {
+      setError("API URL not configured. Showing fallback sample data. Edit the HTML and set API_URL to your Catalyst function URL.");
+      setCacheBadge("fallback");
+      return FALLBACK;
+    }
+
     try {
+      const url = API_URL + (force ? "?force=1" : "");
       const res = await fetch(url, { cache: "no-store" });
-      if(!res.ok) throw new Error("HTTP " + res.status);
+      if (!res.ok) throw new Error("HTTP " + res.status);
       const payload = await res.json();
-      setBadge("cacheBadge", "cache: " + (res.headers.get("X-Cache") || "live").toLowerCase());
-      setBadge("filterBadge", "filter: " + (payload.filter?.period || "all"));
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), payload })); } catch(_){}
+      const cacheHdr = res.headers.get("X-Cache") || "live";
+      setCacheBadge("server " + cacheHdr.toLowerCase());
       clearError();
       return payload;
-    } catch(err) {
-      setError("API error: " + err.message);
-      return null;
+    } catch (err) {
+      setError("Could not reach API (" + err.message + "). Showing last good cache or fallback.");
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw) { setCacheBadge("stale cache"); return JSON.parse(raw).payload; }
+      } catch(_){}
+      setCacheBadge("fallback");
+      return FALLBACK;
     }
   }
 
+  function setError(msg){ const b=document.getElementById("errBanner"); b.textContent=msg; b.classList.add("show"); }
+  function clearError(){ document.getElementById("errBanner").classList.remove("show"); }
+  function setCacheBadge(s){ document.getElementById("cacheBadge").textContent="cache: "+s; }
+  function agoStr(t){ const m=Math.round((Date.now()-t)/60000); return m<1?"<1m ago":m+"m ago"; }
+
+  // ============================================================
+  // 4)  CLIENT-SIDE ROLLUP from daily rows
+  // ============================================================
   function band(u){ if(u>=120) return "High"; if(u>=80) return "Medium"; return "Low"; }
+
+  function rollup(daily, fromISO, toISO, regions){
+    // Filter daily rows by date + region
+    const rows = daily.filter(r => {
+      if(fromISO && r.date < fromISO) return false;
+      if(toISO   && r.date > toISO)   return false;
+      if(regions && regions.length && !regions.includes(r.region)) return false;
+      return true;
+    });
+
+    const byEng = new Map();
+    const byRegion = new Map();
+    const byDay = new Map();
+    const byJobType = new Map();
+    let wfh=0, wos=0;
+    let travelH=0, onsiteH=0;
+    let utilSum=0, utilN=0, hours=0, jobs=0;
+
+    for(const r of rows){
+      // KPI accumulators
+      utilSum += r.util; utilN += 1;
+      hours   += r.hours;
+      jobs    += r.jobs;
+      travelH += (r.travel_hours||0);
+      onsiteH += (r.onsite_hours||0);
+
+      // Per engineer
+      let e = byEng.get(r.engineer);
+      if(!e){ e = {name:r.engineer, region:r.region, utilSum:0, utilN:0, hours:0, jobs:0}; byEng.set(r.engineer,e); }
+      e.utilSum += r.util; e.utilN += 1; e.hours += r.hours; e.jobs += r.jobs;
+
+      // Per region (utilization avg, jobs sum)
+      let rg = byRegion.get(r.region);
+      if(!rg){ rg = {utilSum:0,utilN:0,jobs:0,hours:0}; byRegion.set(r.region,rg); }
+      rg.utilSum += r.util; rg.utilN += 1; rg.jobs += r.jobs; rg.hours += r.hours;
+
+      // Per day (utilization)
+      let dd = byDay.get(r.date);
+      if(!dd){ dd = {s:0,n:0}; byDay.set(r.date,dd); }
+      dd.s += r.util; dd.n += 1;
+
+      // Job type
+      const jt = r.jobtype || "Other";
+      byJobType.set(jt, (byJobType.get(jt)||0) + r.jobs);
+
+      // WFH/WOS share — weighted by jobs (more representative than rows)
+      const w = r.jobs || 1;
+      if(r.work_location === "WFH") wfh += w; else wos += w;
+    }
+
+    const engineers = Array.from(byEng.values()).map(e => {
+      const avg = e.utilSum / Math.max(1,e.utilN);
+      return {
+        name:e.name, region:e.region,
+        util: Math.round(avg*100)/100,
+        jobs: e.jobs,
+        hours: Math.round(e.hours*100)/100,
+        band: band(avg)
+      };
+    });
+
+    // Sort trend by date
+    const trendEntries = Array.from(byDay.entries()).sort((a,b)=> a[0]<b[0]?-1:1);
+    const trend = {
+      labels: trendEntries.map(([d])=> formatShort(d)),
+      values: trendEntries.map(([,v])=> Math.round((v.s/Math.max(1,v.n))*100)/100)
+    };
+
+    const regionArr = Array.from(byRegion.entries())
+      .map(([label,v])=>({label, value: Math.round((v.utilSum/Math.max(1,v.utilN))*100)/100}));
+    // Order regions by Hexagon's known taxonomy when possible; unknowns alphabetical.
+    const _order = orderRegions(regionArr.map(r=>r.label));
+    regionArr.sort((a,b)=> _order.indexOf(a.label) - _order.indexOf(b.label));
+
+    const jobtypeArr = Array.from(byJobType.entries())
+      .map(([label,value])=> ({label, value, color: JOBTYPE_COLOR[label] || "#8B5CF6"}))
+      .sort((a,b)=> b.value - a.value);
+
+    const wfhTotal = wfh + wos;
+    const wfhPct = wfhTotal ? Math.round(wfh*1000/wfhTotal)/10 : 0;
+
+    return {
+      filteredRows: rows.length,
+      kpis: {
+        overall_util: Math.round((utilSum/Math.max(1,utilN))*100)/100,
+        total_job_hours: Math.round(hours*100)/100,
+        active_engineers: byEng.size,
+        total_jobs: jobs,
+        avg_jobs_per_fse: Math.round((jobs/Math.max(1,byEng.size))*10)/10,
+        avg_hours_per_fse: Math.round((hours/Math.max(1,byEng.size))*10)/10
+      },
+      engineers,
+      trend,
+      region: { labels: regionArr.map(r=>r.label), values: regionArr.map(r=>r.value) },
+      jobtype: jobtypeArr,
+      wfh: { wfh_jobs: wfh, wos_jobs: wos, wfh_pct: wfhPct },
+      travel: {
+        travel_hours: Math.round(travelH*100)/100,
+        onsite_hours: Math.round(onsiteH*100)/100,
+        onsite_pct: (travelH+onsiteH) ? Math.round(onsiteH*1000/(travelH+onsiteH))/10 : 0
+      }
+    };
+  }
+  function formatShort(iso){
+    const d = new Date(iso+"T00:00:00");
+    const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return `${String(d.getDate()).padStart(2,"0")} ${m[d.getMonth()]}`;
+  }
+
+  // ============================================================
+  // 5)  RENDERERS
+  // ============================================================
+  let CHARTS = {};
+  let RAW = null;       // raw payload from API (may have daily + legacy aggregates)
+  let DAILY = [];       // per-day rows used for filtering
+  let ROLLED = null;    // current rolled-up payload after filters
+  let HAS_DAILY = false;
+
   function avatarColor(name){
-    const p=["#3B82F6","#14B8A6","#8B5CF6","#F59E0B","#EF4444","#22C55E","#EC4899","#06B6D4","#10B981","#A855F7"];
-    let h=0; for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))%p.length; return p[h];
+    const palette=["#3B82F6","#14B8A6","#8B5CF6","#F59E0B","#EF4444","#22C55E","#EC4899","#06B6D4","#10B981","#A855F7"];
+    let h=0; for(let i=0;i<name.length;i++) h=(h*31+name.charCodeAt(i))%palette.length;
+    return palette[h];
   }
   function initials(name){
     const parts=name.trim().split(/\s+/);
-    return (parts.length===1?parts[0].slice(0,2):(parts[0][0]+parts[parts.length-1][0])).toUpperCase();
+    if(parts.length===1) return parts[0].slice(0,2).toUpperCase();
+    return (parts[0][0]+parts[parts.length-1][0]).toUpperCase();
   }
   function barColor(b){ return b==="High"?"#22C55E":b==="Medium"?"#F59E0B":"#EF4444"; }
 
-  function filteredEngineers(){
-    if(!RAW) return [];
-    return RAW.engineers.filter(e =>
-      (FILTER.region==="all" || e.region===FILTER.region) && e.util > 0
-    );
-  }
-
-  function recomputeKpis(engs){
-    const n = engs.length;
-    if(!n) return { overall_util:0, total_job_hours:0, active_engineers:0, total_jobs:0, avg_jobs_per_fse:0 };
-    const totalJobs = engs.reduce((a,e)=>a+e.jobs,0);
-    const avgUtil = engs.reduce((a,e)=>a+e.util,0)/n;
-    const grandJobs = RAW.kpis.total_jobs || 1;
-    const hoursShare = totalJobs/grandJobs * (RAW.kpis.total_job_hours||0);
-    return {
-      overall_util: Math.round(avgUtil*100)/100,
-      total_job_hours: Math.round(hoursShare*100)/100,
-      active_engineers: n,
-      total_jobs: totalJobs,
-      avg_jobs_per_fse: Math.round(totalJobs/n*10)/10
-    };
-  }
-
   function renderKpis(k, deltas){
-    const fmt = n => Number(n).toLocaleString("en-IN");
-    document.getElementById("kpi-util").textContent  = (k.overall_util||0).toFixed(0)+"%";
-    document.getElementById("kpi-hours").textContent = fmt(Math.round(k.total_job_hours||0));
-    document.getElementById("kpi-eng").textContent   = (k.active_engineers||0);
-    document.getElementById("kpi-jobs").textContent  = (k.avg_jobs_per_fse||0);
-    function setDelta(elId, v, suffix){
-      const el = document.getElementById(elId);
-      if(v === null || v === undefined || isNaN(v)){ el.innerHTML = "&nbsp;"; el.className="delta flat"; return; }
+    const fmt = (n) => Number(n).toLocaleString("en-IN");
+    document.getElementById("kpi-util").textContent  = (k.overall_util ?? 0).toFixed(0) + "%";
+    document.getElementById("kpi-hours").textContent = fmt(Math.round(k.total_job_hours ?? 0));
+    document.getElementById("kpi-eng").textContent   = (k.active_engineers ?? 0);
+    document.getElementById("kpi-jobs").textContent  = (k.avg_jobs_per_fse ?? 0);
+    document.getElementById("kpi-hpf").textContent   = (k.avg_hours_per_fse ?? 0);
+    function setDelta(id, v, suffix){
+      const el = document.getElementById(id);
+      if(v === null || v === undefined || isNaN(v)){ el.innerHTML="&nbsp;"; el.className="delta"; return; }
       const r = Math.round(v*100)/100;
-      const arrow = r > 0 ? "▲" : (r < 0 ? "▼" : "•");
-      const sign  = r > 0 ? "+" : "";
-      const cls   = r === 0 ? "flat" : (r > 0 ? "up" : "down");
+      const arrow = r>0 ? "▲" : (r<0 ? "▼" : "•");
+      const sign  = r>0 ? "+" : "";
+      const cls   = r===0 ? "" : (r>0 ? "up" : "down");
       el.className = "delta " + cls;
       el.textContent = arrow + " " + sign + r + (suffix||"") + " vs previous period";
     }
@@ -228,8 +616,11 @@
       setDelta("kpi-hours-d", deltas.total_job_hours, " hrs");
       setDelta("kpi-eng-d",   deltas.active_engineers, "");
       setDelta("kpi-jobs-d",  deltas.avg_jobs_per_fse, "");
+      setDelta("kpi-hpf-d",   deltas.avg_hours_per_fse, " hrs");
     } else {
-      ["kpi-util-d","kpi-hours-d","kpi-eng-d","kpi-jobs-d"].forEach(id => { document.getElementById(id).innerHTML="&nbsp;"; });
+      ["kpi-util-d","kpi-hours-d","kpi-eng-d","kpi-jobs-d","kpi-hpf-d"].forEach(id=>{
+        const el=document.getElementById(id); el.innerHTML="&nbsp;"; el.className="delta";
+      });
     }
   }
 
@@ -237,13 +628,16 @@
     const list=document.getElementById("fseList");
     const search=document.getElementById("fseSearch");
     const bandSel=document.getElementById("bandFilter");
+    const sortSel=document.getElementById("sortBy");
     const countLbl=document.getElementById("fseCount");
+
     function draw(){
       const q=(search.value||"").toLowerCase().trim();
       const bf=bandSel.value;
-      const maxUtil=Math.max(1, ...engineers.map(e=>e.util));
+      const sortVal = sortSel.value;
+      const maxUtil = engineers.length ? Math.max(...engineers.map(e=>e.util)) || 1 : 1;
       let arr=engineers
-        .map(e=>({...e,band:e.band||band(e.util)}))
+        .map(e=>({...e,band:e.band || band(e.util)}))
         .filter(e=>{
           if(bf && e.band!==bf) return false;
           if(!q) return true;
@@ -253,150 +647,460 @@
           if(/^<\d+$/.test(q)) return e.util < parseInt(q.slice(1));
           if(/^\d+$/.test(q)) return Math.abs(e.util-parseInt(q))<10;
           return false;
-        })
-        .sort((a,b)=>b.util-a.util);
-      countLbl.textContent=arr.length;
+        });
+
+      // sort
+      arr.sort((a,b)=>{
+        switch(sortVal){
+          case "util-asc":  return a.util - b.util;
+          case "jobs-desc": return b.jobs - a.jobs;
+          case "name-asc":  return a.name.localeCompare(b.name);
+          case "util-desc":
+          default:          return b.util - a.util;
+        }
+      });
+
+      countLbl.textContent = arr.length;
       list.innerHTML="";
       if(!arr.length){ list.innerHTML='<div class="empty">No engineers match.</div>'; return; }
       const frag=document.createDocumentFragment();
+      const ranked = [...arr].sort((a,b)=>b.util-a.util);
       for(const e of arr){
         const pct=Math.round((e.util/maxUtil)*100);
+        const rank = ranked.findIndex(x=>x.name===e.name)+1;
         const row=document.createElement("div");
         row.className="fse-row";
+        row.title = `Click for details — ranked #${rank} of ${ranked.length}`;
         row.innerHTML=`
           <div class="avatar" style="background:${avatarColor(e.name)}">${initials(e.name)}</div>
           <div class="name" title="${e.name}">${e.name}</div>
           <div class="region">${e.region||""}</div>
-          <div class="bar"><i style="width:${pct}%;background:${barColor(e.band)}"></i></div>
+          <div class="bar"><i style="width:${Math.min(100,pct)}%;background:${barColor(e.band)}"></i></div>
           <div class="pct">${Math.round(e.util)}%</div>
           <div><span class="pill ${e.band==='High'?'high':e.band==='Medium'?'med':'low'}">${e.band}</span></div>
         `;
+        row.addEventListener("click", ()=>openDrawer(e, rank, ranked.length));
         frag.appendChild(row);
       }
       list.appendChild(frag);
     }
-    search.oninput=draw; bandSel.onchange=draw; draw();
+    search.oninput=draw; bandSel.onchange=draw; sortSel.onchange=draw;
+    draw();
   }
 
   function renderTrend(t){
     if(CHARTS.trend) CHARTS.trend.destroy();
+    if(!t.labels.length){
+      document.getElementById("trendNote").textContent = "no data in range";
+    } else {
+      document.getElementById("trendNote").textContent = t.labels.length + " day" + (t.labels.length===1?"":"s");
+    }
     CHARTS.trend = new Chart(document.getElementById("trendChart"), {
       type:"line",
       data:{labels:t.labels,datasets:[{
         data:t.values, borderColor:"#3B82F6",
         backgroundColor:(ctx)=>{ const c=ctx.chart.ctx; const g=c.createLinearGradient(0,0,0,260);
           g.addColorStop(0,"rgba(59,130,246,.30)");g.addColorStop(1,"rgba(59,130,246,0)"); return g; },
-        borderWidth:2,fill:true,tension:.35,pointBackgroundColor:"#3B82F6",pointRadius:3,pointHoverRadius:5
+        borderWidth:2,fill:true,tension:.35,
+        pointBackgroundColor:"#3B82F6",pointRadius:t.labels.length>40?0:2,pointHoverRadius:5
       }]},
-      options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{grid:{display:false},ticks:{color:"#5C6A85",maxRotation:0,autoSkipPadding:8}},
-          y:{grid:{color:"#1F2A44"},ticks:{color:"#5C6A85",callback:v=>v+"%"}}}}
+      options:{maintainAspectRatio:false,plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>` ${c.parsed.y}%`}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:"#5C6A85",maxRotation:0,autoSkipPadding:10}},
+          y:{grid:{color:"#1F2A44",drawBorder:false},ticks:{color:"#5C6A85",callback:v=>v+"%"},suggestedMin:60,suggestedMax:160}
+        }
+      }
     });
   }
 
-  function renderRegion(r, highlight){
+  function renderRegion(r){
     if(CHARTS.region) CHARTS.region.destroy();
     const colors=["#3B82F6","#22C55E","#F59E0B","#8B5CF6","#14B8A6","#EC4899"];
-    const colorFn = (label,i) => (highlight==="all" || highlight===label) ? colors[i%colors.length] : "rgba(150,150,150,.25)";
+    // Dim non-selected regions when a partial multi-select is active
+    const selected = Array.from(document.querySelectorAll("#regionMenu input:checked")).map(i=>i.value);
+    const total = document.querySelectorAll("#regionMenu input").length;
+    const partial = selected.length>0 && selected.length<total;
+    const colorFor = (label,i) => (!partial || selected.includes(label)) ? colors[i%colors.length] : "rgba(150,150,150,.25)";
     CHARTS.region = new Chart(document.getElementById("regionChart"), {
       type:"bar",
-      data:{labels:r.labels,datasets:[{ data:r.values, backgroundColor:r.labels.map(colorFn), borderRadius:6, maxBarThickness:60 }]},
-      options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{grid:{display:false},ticks:{color:"#8895AD"}},
-          y:{grid:{color:"#1F2A44"},ticks:{color:"#5C6A85",callback:v=>v+"%"}}}}
-    });
-  }
-
-  function renderTravelOnsite(d){
-    if(CHARTS.travel) CHARTS.travel.destroy();
-    CHARTS.travel = new Chart(document.getElementById("travelChart"), {
-      type:"doughnut",
-      data:{labels:d.map(x=>x.label),datasets:[{ data:d.map(x=>x.value), backgroundColor:d.map(x=>x.color), borderColor:"#0B1220", borderWidth:3, hoverOffset:6 }]},
-      options:{maintainAspectRatio:false,cutout:"66%",plugins:{
-        legend:{position:"bottom",labels:{color:"#E5EAF3",boxWidth:10,boxHeight:10,padding:14,font:{size:12}}},
-        tooltip:{callbacks:{label:(c)=>{ const tot=c.dataset.data.reduce((a,b)=>a+b,0); return `${c.label}: ${Math.round(c.parsed).toLocaleString()} hrs (${(c.parsed*100/tot).toFixed(1)}%)`; }}}
-      }}
+      data:{labels:r.labels,datasets:[{ data:r.values, backgroundColor:r.labels.map((l,i)=>colorFor(l,i)), borderRadius:6, maxBarThickness:60 }]},
+      options:{maintainAspectRatio:false,plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>` ${c.parsed.y}%`}}},
+        scales:{
+          x:{grid:{display:false},ticks:{color:"#8895AD"}},
+          y:{grid:{color:"#1F2A44",drawBorder:false},ticks:{color:"#5C6A85",callback:v=>v+"%"},suggestedMax:160}
+        }
+      }
     });
   }
 
   function renderJobType(j){
     if(CHARTS.jobtype) CHARTS.jobtype.destroy();
-    if(!j || !j.length){ document.getElementById("jobTypeChart").parentElement.innerHTML = '<div class="empty">No job type data.</div>'; return; }
     CHARTS.jobtype = new Chart(document.getElementById("jobTypeChart"), {
       type:"doughnut",
-      data:{labels:j.map(x=>x.label),datasets:[{ data:j.map(x=>x.value), backgroundColor:j.map(x=>x.color||"#3B82F6"), borderColor:"#0B1220", borderWidth:3, hoverOffset:6 }]},
+      data:{labels:j.map(x=>x.label),datasets:[{
+        data:j.map(x=>x.value), backgroundColor:j.map(x=>x.color||"#3B82F6"),
+        borderColor:"#0B1220", borderWidth:3, hoverOffset:6
+      }]},
       options:{maintainAspectRatio:false,cutout:"66%",plugins:{
-        legend:{position:"bottom",labels:{color:"#E5EAF3",boxWidth:10,boxHeight:10,padding:14,font:{size:12}}},
-        tooltip:{callbacks:{label:(c)=>{ const tot=c.dataset.data.reduce((a,b)=>a+b,0); return `${c.label}: ${c.parsed} jobs (${(c.parsed*100/tot).toFixed(1)}%)`; }}}
+        legend:{position:"right",labels:{color:"#E5EAF3",boxWidth:10,boxHeight:10,padding:14,font:{size:12}}},
+        tooltip:{callbacks:{label:(c)=>{
+          const tot=c.dataset.data.reduce((a,b)=>a+b,0);
+          return `${c.label}: ${c.parsed} jobs (${(c.parsed*100/Math.max(1,tot)).toFixed(1)}%)`;
+        }}}
       }}
     });
   }
 
-  function populateRegionOptions(){
-    const regionSel = document.getElementById("regionSel");
-    if(!RAW) return;
-    const regions = Array.from(new Set(RAW.engineers.map(e=>e.region))).filter(r=>r && r!=="Other").sort();
-    const opts = ['<option value="all">All regions</option>'];
-    regions.forEach(r => opts.push(`<option value="${r}">${r}</option>`));
-    if(RAW.engineers.some(e => e.region==="Other")) opts.push('<option value="Other">Other</option>');
-    regionSel.innerHTML = opts.join("");
-    regionSel.value = FILTER.region;
+  function renderWfh(w){
+    if(CHARTS.wfh) CHARTS.wfh.destroy();
+    const wfh = w.wfh_jobs || 0;
+    const wos = w.wos_jobs || 0;
+    const total = wfh + wos;
+    document.getElementById("wfhPct").textContent = total ? (w.wfh_pct.toFixed(1) + "%") : "—";
+    CHARTS.wfh = new Chart(document.getElementById("wfhChart"), {
+      type:"doughnut",
+      data:{
+        labels:["WFH (Work From Home)","WOS (Work On Site)"],
+        datasets:[{
+          data:[wfh, wos],
+          backgroundColor:["#8B5CF6","#3B82F6"],
+          borderColor:"#0B1220", borderWidth:3, hoverOffset:6
+        }]
+      },
+      options:{maintainAspectRatio:false,cutout:"70%",plugins:{
+        legend:{position:"bottom",labels:{color:"#E5EAF3",boxWidth:10,boxHeight:10,padding:10,font:{size:11}}},
+        tooltip:{callbacks:{label:(c)=>{
+          const tot=c.dataset.data.reduce((a,b)=>a+b,0);
+          return `${c.label}: ${c.parsed} jobs (${(c.parsed*100/Math.max(1,tot)).toFixed(1)}%)`;
+        }}}
+      }}
+    });
   }
 
-  function applyClientFilters(){
-    const engs = filteredEngineers();
-    const kpis = recomputeKpis(engs);
-    const showDeltas = (FILTER.region === "all");
-    renderKpis(kpis, showDeltas ? RAW.deltas : null);
-    renderFseList(engs);
-    renderRegion(RAW.region, FILTER.region);
+  function renderTravel(t){
+    if(CHARTS.travel) CHARTS.travel.destroy();
+    const tr = t.travel_hours || 0;
+    const on = t.onsite_hours || 0;
+    const tot = tr + on;
+    document.getElementById("travelPct").textContent = tot ? (t.onsite_pct.toFixed(1) + "%") : "—";
+    CHARTS.travel = new Chart(document.getElementById("travelChart"), {
+      type:"doughnut",
+      data:{
+        labels:["Travel hours","On-site hours"],
+        datasets:[{
+          data:[tr, on],
+          backgroundColor:["#F59E0B","#14B8A6"],
+          borderColor:"#0B1220", borderWidth:3, hoverOffset:6
+        }]
+      },
+      options:{maintainAspectRatio:false,cutout:"70%",plugins:{
+        legend:{position:"bottom",labels:{color:"#E5EAF3",boxWidth:10,boxHeight:10,padding:10,font:{size:11}}},
+        tooltip:{callbacks:{label:(c)=>{
+          const t=c.dataset.data.reduce((a,b)=>a+b,0);
+          return `${c.label}: ${Math.round(c.parsed).toLocaleString("en-IN")} hrs (${(c.parsed*100/Math.max(1,t)).toFixed(1)}%)`;
+        }}}
+      }}
+    });
   }
 
-  function renderAll(){
-    populateRegionOptions();
-    renderTrend(RAW.trend);
-    renderTravelOnsite(RAW.travel_vs_onsite || []);
-    renderJobType(RAW.jobtype);
-    applyClientFilters();
-    document.getElementById("genAt").textContent = RAW.generatedAt
-      ? "Snapshot " + new Date(RAW.generatedAt).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})
-      + " · " + (RAW.filteredRowCount || 0) + "/" + (RAW.rawRowCount || 0) + " rows"
-      : "";
+  function renderAll(rolled, deltas){
+    renderKpis(rolled.kpis||{}, deltas);
+    renderFseList(rolled.engineers||[]);
+    renderTrend(rolled.trend||{labels:[],values:[]});
+    renderRegion(rolled.region||{labels:[],values:[]});
+    renderJobType(rolled.jobtype||[]);
+    renderTravel(rolled.travel||{travel_hours:0,onsite_hours:0,onsite_pct:0});
+    renderWfh(rolled.wfh||{wfh_jobs:0,wos_jobs:0,wfh_pct:0});
   }
 
+  // ============================================================
+  // 6)  FILTERS — date range + region multi-select
+  // ============================================================
+  const PRESETS = {
+    "7":  () => [daysAgo(6), today()],
+    "14": () => [daysAgo(13), today()],
+    "30": () => [daysAgo(29), today()],
+    "mtd":() => [firstOfMonth(), today()],
+    "qtd":() => [firstOfQuarter(), today()],
+    "6m": () => [daysAgo(180), today()],
+    "ytd":() => [firstOfYear(), today()],
+    "all":() => [null, null]
+  };
+  const PRESET_LABEL = {"7":"7D","14":"14D","30":"30D","mtd":"MTD","qtd":"QTD","6m":"6M","ytd":"YTD","all":"All"};
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function daysAgo(n){ const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); }
+  function firstOfMonth(){ const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),1).toISOString().slice(0,10); }
+  function firstOfQuarter(){ const d=new Date(); const m=Math.floor(d.getMonth()/3)*3; return new Date(d.getFullYear(),m,1).toISOString().slice(0,10); }
+  function firstOfYear(){ const d=new Date(); return new Date(d.getFullYear(),0,1).toISOString().slice(0,10); }
+  function dataMinDate(){ return DAILY.length ? DAILY.map(r=>r.date).sort()[0] : null; }
+  function dataMaxDate(){ return DAILY.length ? DAILY.map(r=>r.date).sort().slice(-1)[0] : null; }
+
+  function getFilters(){
+    return {
+      from: document.getElementById("startDate").value || null,
+      to:   document.getElementById("endDate").value || null,
+      regions: Array.from(document.querySelectorAll("#regionMenu input:checked")).map(i=>i.value)
+    };
+  }
+  function setFilters(f){
+    if(f.from) document.getElementById("startDate").value = f.from;
+    if(f.to)   document.getElementById("endDate").value = f.to;
+    if(f.regions){
+      document.querySelectorAll("#regionMenu input").forEach(i=>{ i.checked = f.regions.includes(i.value); });
+    }
+  }
+  function saveFilters(){
+    try { localStorage.setItem(FILTER_KEY, JSON.stringify(getFilters())); } catch(_){}
+  }
+  function restoreFilters(){
+    try {
+      const raw = localStorage.getItem(FILTER_KEY);
+      if(!raw) return false;
+      const f = JSON.parse(raw);
+      setFilters(f);
+      return true;
+    } catch(_){ return false; }
+  }
+
+  function applyPreset(key){
+    const [from,to] = PRESETS[key]();
+    document.getElementById("startDate").value = from || dataMinDate() || "";
+    document.getElementById("endDate").value   = to   || dataMaxDate() || "";
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("active", c.dataset.preset===key));
+    refreshFiltered();
+  }
+
+  function updateRangeBadge(from, to){
+    const txt = document.getElementById("rangeText");
+    const days = document.getElementById("rangeDays");
+    if(!from && !to){ txt.textContent = "All time"; days.textContent = ""; return; }
+    txt.textContent = (from||"…") + " → " + (to||"…");
+    if(from && to){
+      const d1 = new Date(from), d2 = new Date(to);
+      const n = Math.round((d2-d1)/86400000) + 1;
+      days.textContent = n + " day" + (n===1?"":"s");
+    } else { days.textContent = ""; }
+  }
+
+  function refreshFiltered(){
+    if(!HAS_DAILY) {
+      // Legacy backend: no per-day data — render the raw payload as-is
+      renderAll({
+        kpis: RAW.kpis || {},
+        engineers: RAW.engineers || [],
+        trend: RAW.trend || {labels:[],values:[]},
+        region: RAW.region || {labels:[],values:[]},
+        jobtype: RAW.jobtype || [],
+        wfh: { wfh_jobs:0, wos_jobs:0, wfh_pct:0 },
+        travel: RAW.travel_vs_onsite ? {
+          travel_hours: (RAW.travel_vs_onsite.find(x=>/travel/i.test(x.label))||{}).value || 0,
+          onsite_hours: (RAW.travel_vs_onsite.find(x=>/onsite|on-site/i.test(x.label))||{}).value || 0,
+          onsite_pct: 0
+        } : {travel_hours:0,onsite_hours:0,onsite_pct:0}
+      }, RAW.deltas || null);
+      const filtLbl = (RAW.filter && RAW.filter.period) || "all";
+      document.getElementById("filterBadge").textContent = "filter: " + filtLbl;
+      return;
+    }
+    const f = getFilters();
+    ROLLED = rollup(DAILY, f.from, f.to, f.regions);
+
+    // For region chart dimming: when a subset of regions is selected, show ALL regions
+    // (date-filtered only) and dim the unselected ones in renderRegion.
+    const totalRegions = document.querySelectorAll("#regionMenu input").length;
+    const partialRgn = f.regions.length>0 && f.regions.length<totalRegions;
+    if(partialRgn){
+      const allRgn = rollup(DAILY, f.from, f.to, []);
+      ROLLED.region = allRgn.region;
+    }
+
+    // Compute prev-period rollup (same length immediately before `from`)
+    let deltas = null;
+    if(f.from && f.to){
+      const d1 = new Date(f.from), d2 = new Date(f.to);
+      const lenDays = Math.round((d2 - d1)/86400000) + 1;
+      const prevTo = new Date(d1); prevTo.setDate(prevTo.getDate() - 1);
+      const prevFrom = new Date(prevTo); prevFrom.setDate(prevFrom.getDate() - (lenDays-1));
+      const prevToISO = prevTo.toISOString().slice(0,10);
+      const prevFromISO = prevFrom.toISOString().slice(0,10);
+      const prev = rollup(DAILY, prevFromISO, prevToISO, f.regions);
+      if(prev.filteredRows > 0){
+        deltas = {
+          overall_util:     +(ROLLED.kpis.overall_util     - prev.kpis.overall_util).toFixed(2),
+          total_job_hours:  +(ROLLED.kpis.total_job_hours  - prev.kpis.total_job_hours).toFixed(0),
+          active_engineers: +(ROLLED.kpis.active_engineers - prev.kpis.active_engineers).toFixed(0),
+          avg_jobs_per_fse: +(ROLLED.kpis.avg_jobs_per_fse - prev.kpis.avg_jobs_per_fse).toFixed(1),
+          avg_hours_per_fse:+(ROLLED.kpis.avg_hours_per_fse- prev.kpis.avg_hours_per_fse).toFixed(1)
+        };
+      }
+    }
+
+    renderAll(ROLLED, deltas);
+    updateRangeBadge(f.from, f.to);
+    saveFilters();
+
+    // Filter badge — show active preset + region count
+    const activeChip = document.querySelector(".chip.active");
+    const presetLbl = activeChip ? PRESET_LABEL[activeChip.dataset.preset] : "custom";
+    const totalRgn = document.querySelectorAll("#regionMenu input").length;
+    const rgnTag = (f.regions && f.regions.length && f.regions.length < totalRgn)
+      ? ` · ${f.regions.length} region${f.regions.length===1?"":"s"}` : "";
+    document.getElementById("filterBadge").textContent = "filter: " + presetLbl + rgnTag;
+
+    // Row count in snapshot line
+    const snap = document.getElementById("genAt");
+    if(snap && RAW.generatedAt){
+      snap.textContent = "Snapshot " + new Date(RAW.generatedAt).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})
+        + " · " + ROLLED.filteredRows + "/" + DAILY.length + " rows";
+    }
+  }
+
+  // Region multi-select dropdown
+  function buildRegionPicker(regions){
+    const menu = document.getElementById("regionMenu");
+    menu.innerHTML = "";
+    for(const r of regions){
+      const id = "rgn_"+r.replace(/\s+/g,"_");
+      const lbl = document.createElement("label");
+      lbl.innerHTML = `<input type="checkbox" id="${id}" value="${r}" checked /> ${r}`;
+      menu.appendChild(lbl);
+    }
+    const actions = document.createElement("div");
+    actions.className = "menu-actions";
+    actions.innerHTML = `<button id="rgnAll">All</button><button id="rgnNone">None</button>`;
+    menu.appendChild(actions);
+    document.getElementById("rgnAll").onclick = ()=>{ menu.querySelectorAll("input").forEach(i=>i.checked=true); updateRegionBtn(); refreshFiltered(); };
+    document.getElementById("rgnNone").onclick = ()=>{ menu.querySelectorAll("input").forEach(i=>i.checked=false); updateRegionBtn(); refreshFiltered(); };
+    menu.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+      cb.addEventListener("change", ()=>{ updateRegionBtn(); refreshFiltered(); });
+    });
+    updateRegionBtn();
+  }
+  function updateRegionBtn(){
+    const checked = Array.from(document.querySelectorAll("#regionMenu input:checked")).map(i=>i.value);
+    const total = document.querySelectorAll("#regionMenu input").length;
+    const btn = document.getElementById("regionBtn");
+    const caret = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>`;
+    if(checked.length===0) btn.innerHTML = "No regions " + caret;
+    else if(checked.length===total) btn.innerHTML = "All regions " + caret;
+    else if(checked.length===1) btn.innerHTML = checked[0] + " " + caret;
+    else btn.innerHTML = checked.length + " regions " + caret;
+  }
+  document.getElementById("regionBtn").addEventListener("click",(e)=>{
+    e.stopPropagation();
+    document.getElementById("regionPicker").classList.toggle("open");
+  });
+  document.addEventListener("click",(e)=>{
+    if(!document.getElementById("regionPicker").contains(e.target))
+      document.getElementById("regionPicker").classList.remove("open");
+  });
+
+  // ============================================================
+  // 7)  ENGINEER DRILL-DOWN DRAWER
+  // ============================================================
+  function openDrawer(e, rank, total){
+    document.getElementById("drawerName").textContent = e.name;
+    document.getElementById("drawerMeta").textContent = `${e.region||"—"} · ${e.band||"—"} band`;
+    document.getElementById("drawerUtil").textContent = (e.util||0).toFixed(1) + "%";
+    document.getElementById("drawerBand").innerHTML = `<span class="pill ${e.band==='High'?'high':e.band==='Medium'?'med':'low'}">${e.band}</span>`;
+    document.getElementById("drawerJobs").textContent = e.jobs || 0;
+    document.getElementById("drawerRegion").textContent = e.region || "—";
+    document.getElementById("drawerRank").textContent = `#${rank} of ${total}`;
+    document.getElementById("drawerOverlay").classList.add("show");
+  }
+  document.getElementById("drawerClose").addEventListener("click", ()=> document.getElementById("drawerOverlay").classList.remove("show"));
+  document.getElementById("drawerOverlay").addEventListener("click", (e)=>{
+    if(e.target.id==="drawerOverlay") document.getElementById("drawerOverlay").classList.remove("show");
+  });
+
+  // ============================================================
+  // 8)  CSV EXPORT (current FSE list view)
+  // ============================================================
+  document.getElementById("csvBtn").addEventListener("click", ()=>{
+    const engs = (ROLLED && ROLLED.engineers) ? ROLLED.engineers : (RAW && RAW.engineers) || [];
+    if(!engs.length){ alert("Nothing to export in the current range."); return; }
+    const f = getFilters();
+    const header = ["Engineer","Region","Utilization %","Band","Jobs","Hours"];
+    const rows = engs.map(e=> [e.name, e.region, e.util, e.band, e.jobs, e.hours||""]);
+    const csv = [header, ...rows].map(r =>
+      r.map(v => {
+        const s = String(v ?? "");
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+      }).join(",")
+    ).join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const tag = (f.from && f.to) ? `_${f.from}_to_${f.to}` : "";
+    a.href = url; a.download = `fse_utilization${tag}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 500);
+  });
+
+  // ============================================================
+  // 9)  BOOT
+  // ============================================================
   Chart.defaults.color="#8895AD";
+  Chart.defaults.font.family='-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif';
   Chart.defaults.font.size=11;
 
   const refreshBtn=document.getElementById("refreshBtn");
-  const periodSel = document.getElementById("periodSel");
-  const regionSel = document.getElementById("regionSel");
-
-  periodSel.addEventListener("change", async (e) => {
-    FILTER.period = e.target.value;
+  async function refresh(force){
     refreshBtn.classList.add("spinning");
-    RAW = await loadData(false);
-    if(RAW) renderAll();
+    RAW = await loadData(!!force);
+
+    // Detect whether backend ships daily rows yet
+    DAILY = Array.isArray(RAW.daily) ? RAW.daily : [];
+    HAS_DAILY = DAILY.length > 0;
+
+    // WFH/WOS is mocked in fallback only
+    const fromFallback = (RAW === FALLBACK) || (DAILY === FALLBACK.daily);
+    document.getElementById("mockBadge").style.display = fromFallback ? "" : "none";
+
+    // Build region picker from data (or sensible default)
+    const regionsRaw = HAS_DAILY
+      ? Array.from(new Set(DAILY.map(r=>r.region).filter(Boolean)))
+      : Array.from(new Set((RAW.engineers||[]).map(e=>e.region).filter(Boolean)));
+    const regions = orderRegions(regionsRaw);
+    if(regions.length) buildRegionPicker(regions);
+
+    // Initialize date inputs to data window
+    const minD = dataMinDate(), maxD = dataMaxDate();
+    if(minD) document.getElementById("startDate").min = minD;
+    if(maxD) document.getElementById("endDate").max = maxD;
+    if(!restoreFilters()){
+      // Default = last 30 days
+      applyPreset("30");
+    } else {
+      refreshFiltered();
+    }
+
+
+    if(!HAS_DAILY){
+      document.getElementById("genAt").textContent = RAW.generatedAt
+        ? "Snapshot " + new Date(RAW.generatedAt).toLocaleString("en-IN",{dateStyle:"medium",timeStyle:"short"})
+        : "";
+    }
+
     refreshBtn.classList.remove("spinning");
+  }
+  refreshBtn.addEventListener("click",()=>refresh(true));
+
+  document.getElementById("startDate").addEventListener("change", ()=>{
+    document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+    refreshFiltered();
+  });
+  document.getElementById("endDate").addEventListener("change", ()=>{
+    document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+    refreshFiltered();
+  });
+  document.querySelectorAll(".chip").forEach(c=>{
+    c.addEventListener("click", ()=> applyPreset(c.dataset.preset));
   });
 
-  regionSel.addEventListener("change", (e) => {
-    FILTER.region = e.target.value;
-    if(RAW) applyClientFilters();
-  });
-
-  refreshBtn.addEventListener("click", async () => {
-    refreshBtn.classList.add("spinning");
-    RAW = await loadData(true);
-    if(RAW) renderAll();
-    refreshBtn.classList.remove("spinning");
-  });
-
-  (async () => {
-    refreshBtn.classList.add("spinning");
-    RAW = await loadData(false);
-    if(RAW) renderAll();
-    refreshBtn.classList.remove("spinning");
-  })();
+  refresh(false);
 </script>
 </body>
 </html>
