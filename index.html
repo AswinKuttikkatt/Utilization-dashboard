@@ -271,11 +271,11 @@
       </div>
     </div>
     <div class="card donut-card">
-      <div class="sec-h">Work location — WFH vs WOS</div>
+      <div class="sec-h">Work location — WFO vs WOS</div>
       <div class="chart-wrap short"><canvas id="wfhChart"></canvas></div>
       <div class="donut-center">
         <div class="big" id="wfhPct">—</div>
-        <div class="lbl">WFH share</div>
+        <div class="lbl">WFO share</div>
       </div>
     </div>
   </div>
@@ -285,7 +285,7 @@
     · <span id="genAt">loading…</span>
     · <span class="badge-cache" id="cacheBadge">cache: —</span>
     · <span class="badge-cache" id="filterBadge">filter: —</span>
-    · <span class="badge-mock" id="mockBadge" style="display:none">WFH/WOS: mocked</span>
+    · <span class="badge-mock" id="mockBadge" style="display:none">WFO/WOS: mocked</span>
   </div>
 </div>
 
@@ -310,7 +310,7 @@
   const API_URL = window.DASHBOARD_API_URL ||
     "https://utilization-dashboard-60071326929.development.catalystserverless.in/server/utilization_dashboard_function/";
 
-  const CACHE_KEY = "utilDashCache_v4";
+  const CACHE_KEY = "utilDashCache_v6";
   const FILTER_KEY = "utilDashFilters_v2";
   const CACHE_TTL_MS = 10 * 60 * 1000;
 
@@ -392,7 +392,7 @@
           onsite_hours: Math.round(onsite*100)/100,
           jobs: jobs,
           jobtype: pickJobType(seed, wfh),
-          work_location: wfh ? "WFH" : "WOS"
+          work_location: wfh ? "WFO" : "WOS"
         });
       }
     }
@@ -476,7 +476,9 @@
 
     const byEng = new Map();
     const byRegion = new Map();
+    const byRegionEngs = new Map();   // region -> Set of engineer names (for capacity)
     const byDay = new Map();
+    const byDayEngs = new Map();      // date -> Set of engineer names (for daily trend cap)
     const byJobType = new Map();
     let wfh=0, wos=0;
     let travelH=0, onsiteH=0;
@@ -495,15 +497,21 @@
       if(!e){ e = {name:r.engineer, region:r.region, utilSum:0, utilN:0, hours:0, jobs:0}; byEng.set(r.engineer,e); }
       e.utilSum += r.util; e.utilN += 1; e.hours += r.hours; e.jobs += r.jobs;
 
-      // Per region (utilization avg, jobs sum)
+      // Per region — sum hours, track distinct engineers for capacity calc
       let rg = byRegion.get(r.region);
-      if(!rg){ rg = {utilSum:0,utilN:0,jobs:0,hours:0}; byRegion.set(r.region,rg); }
-      rg.utilSum += r.util; rg.utilN += 1; rg.jobs += r.jobs; rg.hours += r.hours;
+      if(!rg){ rg = {jobs:0, hours:0}; byRegion.set(r.region, rg); }
+      rg.jobs += r.jobs; rg.hours += r.hours;
+      let rgEngs = byRegionEngs.get(r.region);
+      if(!rgEngs){ rgEngs = new Set(); byRegionEngs.set(r.region, rgEngs); }
+      rgEngs.add(r.engineer);
 
-      // Per day (utilization)
+      // Per day — sum hours + distinct engineers active that day
       let dd = byDay.get(r.date);
-      if(!dd){ dd = {s:0,n:0}; byDay.set(r.date,dd); }
-      dd.s += r.util; dd.n += 1;
+      if(!dd){ dd = {hours:0}; byDay.set(r.date, dd); }
+      dd.hours += r.hours;
+      let dEngs = byDayEngs.get(r.date);
+      if(!dEngs){ dEngs = new Set(); byDayEngs.set(r.date, dEngs); }
+      dEngs.add(r.engineer);
 
       // Job type
       const jt = r.jobtype || "Other";
@@ -511,29 +519,49 @@
 
       // WFH/WOS share — weighted by jobs (more representative than rows)
       const w = r.jobs || 1;
-      if(r.work_location === "WFH") wfh += w; else wos += w;
+      if(r.work_location === "WFO" || r.work_location === "WFH") wfh += w; else wos += w;
     }
 
+    // Hexagon's authoritative util formula:
+    //   Engineer Util % = (sum hours) / (workdays × 8) × 100
+    // Where workdays = Mon-Fri count in selected date range.
+    // Leaves are NOT subtracted (no leave data); engineers on leave will read
+    // slightly lower than HR report.
+    const wkDays = (fromISO && toISO) ? weekdaysBetween(fromISO, toISO) : 0;
+    const capPerEng = wkDays * 8;
+    const utilFromHours = (hrs) => capPerEng > 0
+      ? Math.round((hrs / capPerEng) * 10000) / 100
+      : 0;
+
     const engineers = Array.from(byEng.values()).map(e => {
-      const avg = e.utilSum / Math.max(1,e.utilN);
+      const u = utilFromHours(e.hours);
       return {
         name:e.name, region:e.region,
-        util: Math.round(avg*100)/100,
+        util: u,
         jobs: e.jobs,
         hours: Math.round(e.hours*100)/100,
-        band: band(avg)
+        band: band(u)
       };
     });
 
-    // Sort trend by date
+    // Daily trend: util on each day = (day hours) / (active engs × 8) × 100
     const trendEntries = Array.from(byDay.entries()).sort((a,b)=> a[0]<b[0]?-1:1);
     const trend = {
       labels: trendEntries.map(([d])=> formatShort(d)),
-      values: trendEntries.map(([,v])=> Math.round((v.s/Math.max(1,v.n))*100)/100)
+      values: trendEntries.map(([d,v])=>{
+        const engN = (byDayEngs.get(d) || new Set()).size;
+        const cap  = engN * 8;
+        return cap > 0 ? Math.round((v.hours / cap) * 10000) / 100 : 0;
+      })
     };
 
     const regionArr = Array.from(byRegion.entries())
-      .map(([label,v])=>({label, value: Math.round((v.utilSum/Math.max(1,v.utilN))*100)/100}));
+      .map(([label,v])=>{
+        const engCount = (byRegionEngs.get(label) || new Set()).size;
+        const cap = engCount * capPerEng;
+        const value = cap > 0 ? Math.round((v.hours / cap) * 10000) / 100 : 0;
+        return { label, value };
+      });
     // Order regions by Hexagon's known taxonomy when possible; unknowns alphabetical.
     const _order = orderRegions(regionArr.map(r=>r.label));
     regionArr.sort((a,b)=> _order.indexOf(a.label) - _order.indexOf(b.label));
@@ -558,7 +586,9 @@
     return {
       filteredRows: rows.length,
       kpis: {
-        overall_util: Math.round((utilSum/Math.max(1,utilN))*100)/100,
+        overall_util: (capPerEng > 0 && byEng.size > 0)
+          ? Math.round((hours / (capPerEng * byEng.size)) * 10000) / 100
+          : 0,
         total_job_hours: Math.round(hours*100)/100,
         active_engineers: byEng.size,
         total_jobs: jobs,
@@ -576,6 +606,21 @@
         onsite_pct: (travelH+onsiteH) ? Math.round(onsiteH*1000/(travelH+onsiteH))/10 : 0
       }
     };
+  }
+  // Count Mon-Fri days in [fromISO..toISO] inclusive. Used as weekly capacity
+  // basis: capacity = weekdays × 8h per engineer (matches Hexagon's
+  // Engineer Utilization Report formula).
+  function weekdaysBetween(fromISO, toISO){
+    if(!fromISO || !toISO) return 0;
+    const d1 = new Date(fromISO + "T00:00:00");
+    const d2 = new Date(toISO   + "T00:00:00");
+    if(isNaN(d1) || isNaN(d2) || d2 < d1) return 0;
+    let n = 0;
+    for(let t = d1.getTime(); t <= d2.getTime(); t += 86400000){
+      const dow = new Date(t).getDay(); // 0 Sun .. 6 Sat
+      if(dow !== 0 && dow !== 6) n++;
+    }
+    return n;
   }
   function formatShort(iso){
     const d = new Date(iso+"T00:00:00");
@@ -772,7 +817,7 @@
     CHARTS.wfh = new Chart(document.getElementById("wfhChart"), {
       type:"doughnut",
       data:{
-        labels:["WFH (Work From Home)","WOS (Work On Site)"],
+        labels:["WFO (Work From Office)","WOS (Work On Site)"],
         datasets:[{
           data:[wfh, wos],
           backgroundColor:["#8B5CF6","#3B82F6"],
